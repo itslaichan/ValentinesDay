@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Will You Be My Valentine?</title>
+
+  <style>
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      background: #8f1a20;
+      padding: 18px;
+    }
+
+    /* Main container with background image */
+    .container{
+      width: min(1400px, 96vw);
+      aspect-ratio: 16/9;
+      background-image: url(./assets/bg.png);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      border-radius: 10px;
+      box-shadow: 0 22px 70px rgba(0,0,0,.28);
+      position:relative;
+      overflow:hidden;
+      padding: 40px 60px;
+    }
+
+    /* Layout sections */
+    .top-section{
+      display:flex;
+      justify-content:flex-start;
+      align-items:flex-start;
+      position:relative;
+      z-index:2;
+    }
+
+    .to-text{
+      height: 50px;
+      width: auto;
+    }
+
+    .center-section{
+      position:absolute;
+      inset: 0;
+      display:grid;
+      place-items:center;
+      z-index:2;
+      padding: 80px 24px;
+    }
+
+    .avatars{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 60px;
+      margin-bottom: 30px;
+    }
+
+    .avatar{
+      width: 140px;
+      height: auto;
+      image-rendering: pixelated;
+      filter: drop-shadow(0 12px 18px rgba(0,0,0,.18));
+      user-select:none;
+    }
+    
+    .heart-center{
+      width: 60px;
+      height: auto;
+      image-rendering: pixelated;
+      filter: drop-shadow(0 10px 16px rgba(0,0,0,.18));
+      user-select:none;
+    }
+
+    .title-text{
+      width: min(700px, 85vw);
+      height: auto;
+      margin-bottom: 40px;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,.12));
+    }
+
+    /* Buttons area */
+    .buttons-container{
+      position:relative;
+      width: min(750px, 92vw);
+      height: 120px;
+      margin: 0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 0;
+    }
+
+    .btn{
+      border: none;
+      cursor:pointer;
+      user-select:none;
+      background: transparent;
+      padding: 0;
+      position:absolute;
+      z-index:2;
+      transition: transform .12s ease, filter .12s ease;
+    }
+    
+    .btn img{
+      display: block;
+      width: 200px;
+      height: auto;
+      filter: drop-shadow(0 12px 24px rgba(0,0,0,.25));
+    }
+    
+    .btn:hover{
+      transform: translateY(-3px) scale(1.03);
+      filter: brightness(1.08);
+    }
+    
+    .btn:active{
+      transform: translateY(-1px) scale(1.01);
+    }
+
+    /* YES button - fixed position on the left */
+    #yesBtn{
+      left: 20%;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    
+    #yesBtn:hover{
+      transform: translateY(-50%) translateY(-3px) scale(1.03);
+    }
+
+    /* NO button - starts on the right */
+    #noBtn{
+      left: 60%;
+      top: 50%;
+      transform: translateY(-50%);
+      transition: left 0.15s ease, top 0.15s ease, transform 0.15s ease;
+    }
+
+    /* Bottom section */
+    .bottom-section{
+      position:absolute;
+      left:0; right:0; bottom:30px;
+      padding: 0 60px;
+      display:grid;
+      grid-template-columns: 60px 1fr 60px;
+      align-items:flex-end;
+      z-index:2;
+    }
+
+    .kiss-icon{
+      width: 60px;
+      height: auto;
+      opacity:.9;
+      justify-self: start;
+    }
+
+    .date-text{
+      height: 32px;
+      width: auto;
+      opacity:.95;
+      justify-self: center;
+    }
+    
+    .from-text{
+      height: 50px;
+      width: auto;
+      opacity:.95;
+      justify-self: end;
+    }
+
+    /* Modal/Popup */
+    .modal{
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,.6);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .modal.show{
+      display: flex;
+    }
+    
+    .modal-content{
+      background: #fbf5ea;
+      padding: 60px 80px;
+      border-radius: 25px;
+      text-align: center;
+      box-shadow: 0 35px 90px rgba(0,0,0,.5);
+      border: 4px solid #7d1d24;
+      max-width: 600px;
+      animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+    }
+    
+    .modal-content img{
+      max-width: 100%;
+      height: auto;
+      margin-bottom: 20px;
+    }
+    
+    @keyframes fadeIn{
+      from{ opacity: 0; }
+      to{ opacity: 1; }
+    }
+    
+    @keyframes slideIn{
+      from{
+        transform: translateY(-80px) scale(0.8);
+        opacity: 0;
+      }
+      to{
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+    }
+    
+    /* Confetti */
+    .confetti{
+      position: fixed;
+      width: 12px;
+      height: 12px;
+      animation: fall 3s linear forwards;
+      pointer-events: none;
+      z-index: 999;
+      border-radius: 50%;
+    }
+    
+    @keyframes fall{
+      to{
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 900px){
+      .container{ 
+        aspect-ratio: 4/5; 
+        padding:30px 40px; 
+      }
+      .avatars{ gap: 40px; }
+      .avatar{ width: 110px; }
+      .heart-center{ width: 50px; }
+      .title-text{ width: min(600px, 90vw); margin-bottom: 30px; }
+      .buttons-container{ height: 160px; }
+      .btn img{ width: 160px; }
+      #yesBtn{ left: 15%; top: 30%; }
+      #yesBtn:hover{ transform: translateY(-3px) scale(1.03); }
+      #noBtn{ left: 55%; top: 30%; transform: none; }
+      .bottom-section{ padding: 0 30px; bottom: 20px; grid-template-columns: 50px 1fr 50px; }
+      .kiss-icon{ width: 50px; }
+      .date-text{ height: 30px; }
+      .from-text{ height: 45px; }
+      .modal-content{ padding: 50px 40px; max-width: 90%; }
+    }
+    
+    @media (max-width: 600px){
+      .container{ padding: 20px 25px; }
+      .to-text{ height: 40px; }
+      .avatars{ gap: 25px; }
+      .avatar{ width: 90px; }
+      .heart-center{ width: 40px; }
+      .title-text{ width: min(500px, 92vw); }
+      .btn img{ width: 140px; }
+      #yesBtn{ left: 10%; }
+      #noBtn{ left: 52%; }
+      .bottom-section{ padding: 0 20px; }
+      .date-text{ height: 28px; }
+      .from-text{ height: 40px; }
+      .modal-content{ padding: 40px 30px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Top section with To text only -->
+    <div class="top-section">
+      <img class="to-text" src="./assets/sign 1.png" alt="To: M.B.Ç.">
+    </div>
+
+    <!-- Center section with avatars, title, and buttons -->
+    <div class="center-section">
+      <div class="avatars">
+        <img class="avatar" src="./assets/mert.png" alt="Pixel boy">
+        <img class="heart-center" src="./assets/heart.png" alt="Heart">
+        <img class="avatar" src="./assets/damla.png" alt="Pixel girl">
+      </div>
+
+      <img class="title-text" src="./assets/question.png" alt="Will You Be My Valentine?">
+
+      <div class="buttons-container" id="arena">
+        <button class="btn btn-yes" id="yesBtn" onclick="handleYes()">
+          <img src="./assets/yes_button.png" alt="Yes!!">
+        </button>
+        <button class="btn btn-no" id="noBtn" onmouseover="moveButton()" ontouchstart="moveButton(event)">
+          <img src="./assets/no_button.png" alt="No">
+        </button>
+      </div>
+    </div>
+
+    <!-- Bottom section with kiss, date (centered), and FROM -->
+    <div class="bottom-section">
+      <img class="kiss-icon" src="./assets/kiss.png" alt="kiss">
+      <img class="date-text" src="./assets/date.png" alt="14.02.2026">
+      <img class="from-text" src="./assets/sign 2.png" alt="From: D.A">
+    </div>
+  </div>
+
+  <!-- Modal Popup -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <img src="./assets/pop up.png" alt="Success Message">
+    </div>
+  </div>
+
+  <script>
+    const arena = document.getElementById('arena');
+    const noBtn = document.getElementById('noBtn');
+    const yesBtn = document.getElementById('yesBtn');
+    const modal = document.getElementById('modal');
+    let moveCount = 0;
+
+    function clamp(n, min, max){ 
+      return Math.max(min, Math.min(max, n)); 
+    }
+
+    function moveButton(e){
+      if(e) e.preventDefault();
+      
+      moveCount++;
+      
+      const a = arena.getBoundingClientRect();
+      const b = noBtn.getBoundingClientRect();
+      const yesRect = yesBtn.getBoundingClientRect();
+      const padding = 20;
+
+      const maxX = a.width - b.width - padding;
+      const maxY = a.height - b.height - padding;
+
+      let attempts = 0;
+      let x, y, newLeft, newTop;
+      let tooClose = true;
+
+      // Try to find a position that's not too close to YES button
+      while(tooClose && attempts < 20){
+        x = Math.random() * maxX + padding;
+        y = Math.random() * maxY + padding;
+
+        // Convert to absolute positions to check distance
+        newLeft = a.left + x;
+        newTop = a.top + y;
+
+        // Calculate distance from YES button center
+        const yesCenterX = yesRect.left + yesRect.width / 2;
+        const yesCenterY = yesRect.top + yesRect.height / 2;
+        const noCenterX = newLeft + b.width / 2;
+        const noCenterY = newTop + b.height / 2;
+        
+        const distance = Math.sqrt(
+          Math.pow(noCenterX - yesCenterX, 2) + 
+          Math.pow(noCenterY - yesCenterY, 2)
+        );
+
+        // Require minimum distance of 250px between button centers
+        if(distance > 250){
+          tooClose = false;
+        }
+        attempts++;
+      }
+
+      // Make button smaller each time (but not too small)
+      const newScale = Math.max(0.5, 1 - (moveCount * 0.07));
+
+      // Apply new position
+      noBtn.style.left = `${x}px`;
+      noBtn.style.top = `${y}px`;
+      noBtn.style.transform = `scale(${newScale})`;
+    }
+
+    // Handle YES button click
+    function handleYes(){
+      modal.classList.add('show');
+      
+      // Create confetti burst
+      for (let i = 0; i < 120; i++) {
+        setTimeout(() => createConfetti(), i * 25);
+      }
+    }
+
+    function createConfetti(){
+      const confetti = document.createElement('div');
+      confetti.className = 'confetti';
+      confetti.style.left = Math.random() * window.innerWidth + 'px';
+      confetti.style.top = '-20px';
+      
+      const colors = ['#C94C4C', '#FF69B4', '#FFD700', '#87CEEB', '#FF1493', '#FF6347'];
+      confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+      confetti.style.animationDelay = Math.random() * 1.5 + 's';
+      confetti.style.animationDuration = (2 + Math.random() * 1.5) + 's';
+      
+      document.body.appendChild(confetti);
+      
+      setTimeout(() => confetti.remove(), 4000);
+    }
+
+    // Close modal when clicking outside
+    modal.addEventListener('click', function(e){
+      if (e.target === this) {
+        this.classList.remove('show');
+      }
+    });
+
+    // Don't move button on initial load - let it stay in starting position
+  </script>
+</body>
+</html>
